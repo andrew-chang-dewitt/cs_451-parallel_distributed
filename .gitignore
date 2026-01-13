@@ -1,0 +1,24 @@
+# vim files
+*.swp
+*.swo
+
+# node environment
+site/node_modules/
+
+# python environment
+.env/
+
+# jupyter environment
+.ipynb_checkpoints/
+
+# python caches
+__pycache__/
+.mypy_cache/
+
+# testing coverage reports
+.coverage
+
+# build process side-effects
+build/
+dist/
+win_files

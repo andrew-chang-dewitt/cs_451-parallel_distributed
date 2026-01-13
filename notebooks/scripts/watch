@@ -1,0 +1,13 @@
+#/user/bin/env bash
+
+SCRIPT_DIR=`dirname $(realpath "$0")`
+cd $SCRIPT_DIR/..
+
+cmd="pj $@"
+files=$(ag -l -g .)
+
+echo "running command: $cmd"
+
+echo "watching $files for changes...\n\n"
+entr $cmd <<< $files
+echo "\n\n...stopping watching"

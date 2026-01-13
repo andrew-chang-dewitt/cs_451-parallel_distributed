@@ -1,0 +1,59 @@
+:root {
+  --layout-min-width: 310px;
+  --layout-max-width: 70rem;
+  --layout-max-reading-width: 40rem;
+
+  --layout-margin: 1em;
+  --layout-margin-small: calc(0.5 * var(--layout-margin));
+  --layout-side-margin: var(--layout-margin);
+
+  --layout-grid-gap: var(--layout-margin);
+  --layout-grid-gap-wide: calc(2 * var(--layout-grid-gap));
+
+  --layout-paragraph-indent: 2rem;
+
+  --layout-first-subtitle: 0.75rem;
+
+  --layout-header-height: 0.75rem;
+}
+
+/* 
+ * RIGHT SIDEBAR
+ *
+ * floats targeted elements to right margin on wider screens & print
+ */
+@media print, screen and (min-width: env(--layout-screen-medium)) {
+  /* float preceding element to left to allow aside to position to the right of
+   * it */
+  *:has(+ .right-aside:not(.after)) {
+    float: left;
+  }
+  .right-aside {
+    float: right;
+    margin-left: var(--layout-grid-gap-wide);
+    /* ensure right-floated asides come after any previous aside */
+    clear: right;
+  }
+  /* ensure non-aside element following left-floated aside clears preceding
+   * aside */
+  .right-aside + *,
+  *:has(.right-aside) + * {
+    clear: left;
+  }
+}
+@media screen and (min-width: env(--layout-screen-medium)) {
+  *:has(+ .right-aside:not(.after)) {
+    width: 60%;
+  }
+  .right-aside {
+    width: calc(40% - var(--layout-grid-gap-wide));
+  }
+}
+@media print {
+  *:has(+ .right-aside:not(.after)) {
+    width: 4in;
+  }
+  .right-aside {
+    width: calc(3.5in - var(--layout-grid-gap-wide));
+  }
+}

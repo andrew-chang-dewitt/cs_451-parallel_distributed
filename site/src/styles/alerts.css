@@ -1,0 +1,94 @@
+.markdown-alert-content {
+  padding: var(--layout-margin-small) var(--layout-margin);
+  margin-bottom: var(--layout-margin);
+  color: inherit;
+  border-left: 0.25em solid;
+}
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-family: var(--fonts-family-serif);
+  font-weight: var(--fonts-weight-serif-normal-bold);
+  align-items: center;
+  line-height: 1;
+}
+.markdown-alert-content > :first-child {
+  margin-top: 0;
+}
+.markdown-alert-content > p:not(:first-child) {
+  margin: 0;
+}
+
+/*
+ * ALERT COLORS
+ */
+:root {
+  --colors-alert-aside: var(--colors-accent3);
+  --colors-alert-todo: var(--colors-accent2);
+  --colors-alert-note: var(--colors-accent1);
+  --colors-alert-tip: var(--colors-accent3);
+  --colors-alert-important: var(--colors-action-dark);
+  --colors-alert-warning: var(--colors-action);
+  --colors-alert-caution: var(--colors-accent2);
+}
+
+.markdown-alert-aside > .markdown-alert-content {
+  border-left-color: var(--colors-alert-aside);
+}
+.markdown-alert-aside .markdown-alert-title {
+  color: var(--colors-alert-aside);
+}
+
+.markdown-alert-todo > .markdown-alert-content {
+  border-left-color: var(--colors-alert-todo);
+}
+.markdown-alert-todo .markdown-alert-title {
+  color: var(--colors-alert-todo);
+}
+
+.markdown-alert-note > .markdown-alert-content {
+  border-left-color: var(--colors-alert-note);
+}
+.markdown-alert-note .markdown-alert-title {
+  color: var(--colors-alert-note);
+}
+
+.markdown-alert-tip > .markdown-alert-content {
+  border-left-color: var(--colors-alert-tip);
+}
+.markdown-alert-tip .markdown-alert-title {
+  color: var(--colors-alert-tip);
+}
+
+.markdown-alert-important > .markdown-alert-content {
+  border-left-color: var(--colors-alert-important);
+}
+.markdown-alert-important .markdown-alert-title {
+  color: var(--colors-alert-important);
+}
+
+.markdown-alert-warning > .markdown-alert-content {
+  border-left-color: var(--colors-alert-warning);
+}
+.markdown-alert-warning .markdown-alert-title {
+  color: var(--colors-alert-warning);
+}
+
+.markdown-alert-caution > .markdown-alert-content {
+  border-left-color: var(--colors-alert-caution);
+}
+.markdown-alert-caution .markdown-alert-title {
+  color: var(--colors-alert-caution);
+}
+
+/*
+ * ALERT ICONS
+ */
+.octicon {
+  display: inline-block;
+  overflow: visible;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+.mr-2 {
+  margin-right: var(--layout-margin-small);
+}

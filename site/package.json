@@ -1,0 +1,30 @@
+{
+  "name": "cs_451-parallel_and_distributed_computing",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "npm run build && npm run preview"
+  },
+  "prettier": {
+    "semi": false
+  },
+  "dependencies": {
+    "vite-plugin-static-md": "^0.5.5"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^24.3.0",
+    "highlight.js": "^11.11.1",
+    "marked-alert": "^2.1.2",
+    "marked-directive": "^1.0.7",
+    "marked-highlight": "^2.2.2",
+    "marked-katex-extension": "^5.1.5",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.0.0"
+  }
+}

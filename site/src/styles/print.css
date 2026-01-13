@@ -1,0 +1,57 @@
+/*
+ * print settings
+ *
+ * include this file in `global.css` via `@include "./print.css"` if you need some basic print styles
+ */
+@media print {
+  :root {
+    font-size: 11pt;
+    background-color: white !important;
+  }
+
+  aside,
+  section {
+    break-inside: avoid-page;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    break-after: avoid-page;
+  }
+  p {
+    break-inside: auto;
+  }
+  blockquote:has(+ pre > code),
+  blockquote:has(+ .katex-display),
+  p:has(+ pre > code),
+  p:has(+ .katex-display) {
+    break-after: avoid-page;
+  }
+
+  h1:first-child {
+    margin-top: 0;
+  }
+
+  html {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    margin: 0 auto !important;
+  }
+  body {
+    margin: 0;
+    max-width: 100% !important;
+  }
+}
+
+@page {
+  margin: 0.5in;
+}
+
+/*
+@page :first {
+  margin-top: 2in;
+}
+*/
