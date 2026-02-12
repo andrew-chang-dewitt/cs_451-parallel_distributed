@@ -1,6 +1,6 @@
 ---
 title: "Parallel & Distributed: getting started w/ FABRIC testbed"
-description: "."
+description: "Some basics on working with FABRIC, a state of the art testbed for parallel & distributed computing."
 keywords:
   - "fabric"
   - "parallel & distributed"

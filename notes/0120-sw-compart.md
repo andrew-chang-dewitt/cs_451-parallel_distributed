@@ -1,6 +1,6 @@
 ---
 title: "Parallel & Distributed: software compartmentalization"
-description: "."
+description: "The beginnings of exploring software compartmentalization, a technique for dividing a monolithic application into multiple processes working together. Starts with a major motivator, privilege separation, then introduces some examples."
 keywords:
   - "privileges"
   - "security"
