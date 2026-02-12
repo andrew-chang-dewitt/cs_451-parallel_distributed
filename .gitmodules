@@ -1,3 +1,6 @@
 [submodule "hw/hw_01"]
 	path = hw/hw_01
 	url = git@github.com:andrew-chang-dewitt/cs_451-hw_01-getting_started.git
+[submodule "hw/hw_02"]
+	path = hw/hw_02
+	url = git@github.com:andrew-chang-dewitt/cs_451-hw_02.git
