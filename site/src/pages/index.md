@@ -5,5 +5,6 @@ description: index/toc
 
 A few types of things:
 
-- [notes](/notes/)
 - [hw](/hw/)
+- [notes](/notes/)
+- [prj](/prj/)
