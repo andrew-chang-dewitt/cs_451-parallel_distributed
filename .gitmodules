@@ -7,3 +7,6 @@
 [submodule "hw/hw_03"]
 	path = hw/hw_03
 	url = git@github.com:andrew-chang-dewitt/cs_451-hw_03-multithreading.git
+[submodule "prj"]
+	path = prj
+	url = git@github.com:andrew-chang-dewitt/cs_451-prj
