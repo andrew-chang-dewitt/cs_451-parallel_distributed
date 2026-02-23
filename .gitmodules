@@ -12,7 +12,9 @@
 	url = git@github.com:andrew-chang-dewitt/cs_451-prj
 [submodule "resources/hashtray"]
 	path = resources/hashtray
-	url = git@gitlab.com:andrew-chang-dewitt/hashtray.git
+        # url = git@gitlab.com:andrew-chang-dewitt/hashtray.git
+        # fixes breaking build in cloning hashtray w/ ssh link above
+	url = https://gitlab.com/andrew-chang-dewitt/hashtray.git
 [submodule "hw/hw_04"]
 	path = hw/hw_04
 	url = git@github.com:andrew-chang-dewitt/cs_451-hw_04-berkeley_sockets.git
