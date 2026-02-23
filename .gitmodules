@@ -10,3 +10,9 @@
 [submodule "prj"]
 	path = prj
 	url = git@github.com:andrew-chang-dewitt/cs_451-prj
+[submodule "resources/hashtray"]
+	path = resources/hashtray
+	url = git@gitlab.com:andrew-chang-dewitt/hashtray.git
+[submodule "hw/hw_04"]
+	path = hw/hw_04
+	url = git@github.com:iltech-cs451-sp26/assignment-4-andrew-chang-dewitt.git
