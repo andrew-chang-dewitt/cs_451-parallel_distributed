@@ -12,6 +12,7 @@ keywords:
 meta:
   byline: Andrew Chang-DeWitt
   published: "2026-01-20T10:00-06:00"
+  updated: "2026-0223T10:00-06:00"
 ---
 
 ## agenda
@@ -21,7 +22,7 @@ meta:
   - how it works
 - compartmentalization w/ `pitchfork` & `libcompart`
 
-## privilege separation
+## privilege separation (_privsep_)
 
 _**def**_&mdash;the concept of composing software so that, at runtime,
 different parts of the same application/program execute w/ different privilege
@@ -42,14 +43,16 @@ some other techniques:
 these are all good to use, together where possible. some are difficult to apply
 though.
 
-today, we'll focus on privsep.
+today, we'll focus on _privsep_.
 
-the goal of privsep is to compartmentalize code & data, changing monolithic
-applications to concurrent set of cooperating programs. in doing so, we gain
-the ability to go from a single, common privilege level in a monolithic app to
-granular privileges for different segments of the application. this gives the
-application internal vulnerability containment; if a vulnerability is
-exploited, it is less likely to affect the entire set of programs.
+> [!IMPORTANT]
+>
+> the goal of privsep is to compartmentalize code & data, changing monolithic
+> applications to concurrent set of cooperating programs. in doing so, we gain
+> the ability to go from a single, common privilege level in a monolithic app to
+> granular privileges for different segments of the application. this gives the
+> application internal vulnerability containment; if a vulnerability is
+> exploited, it is less likely to affect the entire set of programs.
 
 ### implementing privsep
 
@@ -103,11 +106,25 @@ we call this the
 
 ### compartment model
 
-application is separated into multiple portions, `main`, & associated portions
+which seeks to create a general framework for implementing privsep for any program.
+
+> [!IMPORTANT]
+>
+> based on 3 key contexts:
+>
+> 1. _**segment**_&mdash;some code making up a logical part
+>    of a larger program. can be one or more
+>    expressions/statements.
+> 2. _**compartment**_&mdash;a portion of code that shares
+>    state across _segments_.
+> 3. _**domain**_&mdash;shared memory/handles/resources
+>    that can be used by one or more _compartments_ (i.e. a
+>    virtual machine or sandbox)
+
+to implement privsep in the compartment model, an
+application is separated into multiple _compartments_, `main`, & associated portions
 labeled `compartN` (where N is a number) that may have different privilege
-levels & dependencies. each **compartment** (_**def**_&mdash;portions of code that
-share state across **segments**) (& main) may run on different **domain**s
-(_**def**_&mdash;shared memory/handles/resources across compartments). each
+levels & dependencies. each compartment (including `main`) may run on different _domains_. each
 domain may, or may not, run on the same host VM or hardware. `main` & `monitor` are
 special compartments, always found in domain 0.
 
