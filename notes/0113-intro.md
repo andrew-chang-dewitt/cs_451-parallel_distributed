@@ -10,7 +10,7 @@ keywords:
 meta:
   byline: Andrew Chang-DeWitt
   published: "2026-01-13T10:00-06:00"
-  updated: "2026-01-15T09:00-06:00"
+  updated: "2026-0223T09:00-06:00"
 ---
 
 > [!NOTE]
@@ -63,12 +63,19 @@ there's still 4 more working while you fix the 5th) & be more scalable (you can
 add or remove wheelbarrows depending on the size of the pile of stuff to move &
 your priority for the job).
 
+## what kinds of problems can it solve?
+
+1. horizontal scaling (i.e. supercomputers)
+2. performance (speeding up complex computations)
+3. resilience (replicating systems hardens against complete failure)
+4. security (separation of resources & privileges hardens against unauthorized access to the entire system)
+
 ## what makes it hard?
 
-parallism & distributed computing comes w/ lots of challenges around race
-conditions, partial failures, & more. there are some tools that programmers can
-use to assist in managing these difficulties (e.g. synchronization w/ atomic
-primitives or locks, SIMD, message passing/shared memory); however, they are
+parallism & distributed computing comes w/ lots of challenges around **race
+conditions, partial failures**, & more. there are some tools that programmers can
+use to assist in managing these difficulties (e.g. **synchronization w/ atomic
+primitives or locks**, SIMD, message passing/shared memory); however, they are
 not simple concepts themselves & come with a learning curve.
 
 ## how do we measure the benefits?
