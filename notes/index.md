@@ -1,1 +1,5 @@
 - [Jan 13, 2026: intro](./0113-intro/)
+- [Jan 15, 2026: introduction to fabric](./0115-intro_to_fabric/)
+- [Jan 20, 2026: software compartmentalization](./0120-sw-compart/)
+- [Jan 22, 2026: understanding libcompart](./0122-libcompart/)
+- [Feb 3, 2026: some terms & concepts](./0203-terms_concepts/)

@@ -4,6 +4,7 @@ description: "The beginnings of exploring software compartmentalization, a techn
 keywords:
   - "privileges"
   - "security"
+  - "c-lang"
   - "parallel & distributed"
   - "lecture notes"
   - "computer science"
