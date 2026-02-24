@@ -68,36 +68,37 @@ sockets interface:
    connection (dropping client)
 
 ```no-linenums
-   +--------------+     +--------------+
-   | start client |     | start server |
-   |              |     |              |
-   |              |     |              |
-   | getaddrinfo  |     | getaddrinfo  |
-   |      |       |     |      |       |
-   |      v       |     |      v       |
-   |   socket     |     |   socket     |
-   |      |       |     |      |       |
-   |      |       |     |      v       |
-   |      |       |     |    bind      |
-   |      |       |     |      |       |
-   |      |       |     |      v       |
-   |      |       |     |   listen     |
-   |      |       |     |      |       |
-   |      |       |     |      v       |
-   |      |       |     |   accept     |
- +-|      |       |-----|      |       |-+
- | +------|-------+     +------|-------+ |
- |        v                    v         |
- |  rio_written --------> rio_readlineb  |
- |        |                    |         |
- |        v                    v         |
- |  rio_readlineb <------ rio_written    |
- | +------|-------+     +------|-------+ |
- +-|      v       |-----|      v       |-+
-   |    close     |     | rio_readlineb|
-   |              |     |      |       |
-   +--------------+     |      v       |
-                        |    close     |
-                        |              |
-                        +--------------+
+    +-----------------+      +-----------------+
+    |   start client  |      |  start server   |
+    |                 |      |                 |
+    |                 |      |                 |
+    |   getaddrinfo   |      |   getaddrinfo   |
+    |        :        |      |       :         |
+    |        ⇣        |      |       ⇣         |
+    |     socket      |      |     socket      |
+    |        :        |      |       :         |
+    |        :        |      |       ⇣         |
+    |        :        |      |      bind       |
+    |        :        |      |       :         |
+    |        :        |      |       ⇣         |
+    |        :        |      |     listen      |
+    |        :        |      |       :         |
+    |        ⇣        |      |       ⇣         |
+    |     connect   ···········⇢   accept      |
+    |        :        |      |       :         |
+ +--|        :        |------|       :         |--+
+ |  +--------:--------+      +-------:---------+  |
+ |           ⇣                       ⇣            |
+ |     rio_written  ···········⇢ rio_readlineb    |
+ |           :                       :            |
+ |           ⇣                       ⇣            |
+ |    rio_readlineb ⇠···········  rio_written     |
+ |  +--------:--------+      +-------:---------+  |
+ +--|        ⇣        |------|       ⇣         |--+
+    |      close    ···········⇢ rio_readlineb |
+    |                 |      |       :         |
+    +-----------------+      |       ⇣         |
+                             |     close       |
+                             |                 |
+                             +-----------------+
 ```
