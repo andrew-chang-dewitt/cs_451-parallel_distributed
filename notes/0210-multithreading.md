@@ -187,4 +187,6 @@ read & update the value at the address `<__data_start> + 0x18`, leading to a
 
 ## data race (a.k.a. more parallelism, more problems)
 
+_**def:**_&mdash;a data race is one one or more processes/threads attempt to read/write to a shared resource (memory location, disk page, etc.) at the same time, leading to inconsistencies in the value. here, thread 1 & thread 2
+
 ## another example: `hashtray`

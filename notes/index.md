@@ -3,3 +3,5 @@
 - [Jan 20, 2026: software compartmentalization](./0120-sw-compart/)
 - [Jan 22, 2026: understanding libcompart](./0122-libcompart/)
 - [Feb 3, 2026: abstractions for parallelism](./0203-abstractions_for_parallelism/)
+- [Feb 10, 2026: multithreading](./0210-multithreading/)
+- [Feb 17, 2026: sockets & distributed inter-process communication](./0217-ipc_sockets/)
