@@ -6,6 +6,7 @@ keywords:
   - "data races"
   - "c-lang"
   - "assembly"
+  - "hashtray"
   - "system design"
   - "parallel & distributed"
   - "lecture notes"
@@ -20,7 +21,8 @@ meta:
 ## agenda
 
 - motivating example: count
-- more parallelism, more problems: data races
+- data race (a.k.a. more parallelism, more problems)
+- another example: `hashtray`
 
 ## motivating example: count
 
@@ -184,3 +186,5 @@ while the threads are executing simultaneously, they are both attempting to
 read & update the value at the address `<__data_start> + 0x18`, leading to a
 
 ## data race (a.k.a. more parallelism, more problems)
+
+## another example: `hashtray`
