@@ -1,7 +1,8 @@
 ---
-title: "Parallel & Distributed: some terminology & concepts"
-description: "A discussion (& definition) of some terms important to the course. Covers concurrent/parallel/distributed, sync/async, & related concepts."
+title: "Parallel & Distributed: abstractions for parallelism"
+description: "A discussion (& definition) of some important abstractions for implementing parallel systems. Covers ideas such as concurrent/parallel/distributed systems, sync/async execution, etc.."
 keywords:
+  - "abstractions"
   - "jargon"
   - "system design"
   - "parallel & distributed"
@@ -12,22 +13,22 @@ keywords:
 meta:
   byline: Andrew Chang-DeWitt
   published: "2026-02-03T10:00-06:00"
+  updated: "2026-02-23T10:00-06:00"
 ---
 
 ## agenda
 
-- jargon
-  - concurrent vs. parallel vs. distrubted
-  - sync vs. async
-- state management
+- concurrent vs. parallel vs. distrubted
+- sync vs. async
+- state management (ipc)
+  - shared memory
+  - message passing
 
-## jargon
-
-### concurrent vs. parallel vs. distrubted
+## concurrent vs. parallel vs. distrubted
 
 > [!TODO]
 
-### sync vs. async
+## sync vs. async
 
 _def: **synchronous**_&mdash;work is done in order w/ no interruptions; when
 needing a response from something else, a synchronous task must wait. by
@@ -43,13 +44,17 @@ other work, to guarantee that it will finish that portion of work & ideally
 give guarantees about the state it operates on before & after the critical
 section (i.e. making this portion into an _**atomic**_ operation).
 
-## state management
+## state management (ipc)
 
 in decoupled (concurrent/parallel/distributed) programming, there's two main
 ways of sharing state between separate parts (workers) in a program/system:
 
 1. shared memory
 2. message passing
+
+called _**interprocess communication** (ipc)_ both allow for separate
+nodes/processes/threads in a system to share state & communicate across
+compartment boundaries.
 
 ### shared memory
 

@@ -73,7 +73,7 @@ your priority for the job).
 ## what makes it hard?
 
 parallism & distributed computing comes w/ lots of challenges around **race
-conditions, partial failures**, & more. there are some tools that programmers can
+conditions, partial failures, deadlocks**, & more. there are some tools that programmers can
 use to assist in managing these difficulties (e.g. **synchronization w/ atomic
 primitives or locks**, SIMD, message passing/shared memory); however, they are
 not simple concepts themselves & come with a learning curve.
