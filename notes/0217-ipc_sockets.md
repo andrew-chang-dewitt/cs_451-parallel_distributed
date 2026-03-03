@@ -84,18 +84,18 @@ sockets interface:
     |        :        |      |     listen      |
     |        :        |      |       :         |
     |        ⇣        |      |       ⇣         |
-    |     connect   ···········⇢   accept      |
+    |     connect   ···········⇢   accept     |
     |        :        |      |       :         |
  +--|        :        |------|       :         |--+
  |  +--------:--------+      +-------:---------+  |
  |           ⇣                       ⇣            |
- |     rio_written  ···········⇢ rio_readlineb    |
+ |     rio_written  ···········⇢ rio_readlineb   |
  |           :                       :            |
  |           ⇣                       ⇣            |
  |    rio_readlineb ⇠···········  rio_written     |
  |  +--------:--------+      +-------:---------+  |
  +--|        ⇣        |------|       ⇣         |--+
-    |      close    ···········⇢ rio_readlineb |
+    |      close    ···········⇢ rio_readlineb|
     |                 |      |       :         |
     +-----------------+      |       ⇣         |
                              |     close       |
