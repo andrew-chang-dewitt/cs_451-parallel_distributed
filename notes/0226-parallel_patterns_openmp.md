@@ -2,7 +2,9 @@
 title: "Parallel & Distributed: parallelization via abstractions"
 description: "Digging into patterns of parallel programming & abstractions that generalize these patterns. Explores OpenMP, a C/C++ abstraction using the fork-join pattern."
 keywords:
-  - "TODO"
+  - "parallelization patterns"
+  - "abstractions"
+  - "openmp"
   - "parallel & distributed"
   - "lecture notes"
   - "computer science"
@@ -16,9 +18,13 @@ meta:
 
 ## agenda
 
-- TODO
+- intro to openmp
+- ex: digging in w/ count
+- problems of abstracting
+- ex: counting correctly this time
+- observability & perf
 
-## TODO
+## intro to openmp
 
 parallel computing w/ openmp, a c preprocessor pragma for parallelizing parts
 of a program:
@@ -34,9 +40,15 @@ for (i=0;i<d;i++) {
 }
 ```
 
+## ex: digging in w/ count
+
 taking a step back, examine our count example from before. it's using the
 **fork-join**; a pattern for using threads to parallelize a program. the openmp
 pragma above actually uses the same pattern to parallelize the for loop.
+
+> [!TODO]
+>
+> apply simple solution to data race in this example
 
 ```c
 #include <stdio.h>
@@ -82,9 +94,27 @@ int main() {
 }
 ```
 
-some observations to note: before, we were able see clearly how many threads
-are created&mdash;now w/ openmp pragma, however, we don't know many things,
-including how many threads are spawned. see a simple hello world, for example:
+w/ some handwaving (for now), this simple pragma helps remove all the
+boilerplate of `pthread.h` to focus on the logic instead of the act of
+parallizing it.
+
+however, as with any other abstraction, it doesn't come for free.
+
+## problems of abstracting
+
+in the case of openmp & our simple count example, there's some problems we'll run into right out of the gate:
+
+- how many threads?
+- nondeterminism of the naive abstraction
+- what is each thread actually doing?
+
+let's take a closer look at each, starting w/
+
+### how many threads?
+
+before, we were able see clearly how many threads are created&mdash;now w/ a
+naive openmp pragma we don't control many things, including the number of
+threads. see a simple hello world, for example:
 
 ```c
 #include "omp.h"
@@ -122,8 +152,18 @@ $ lscpu | grep Core
 Core(s) per socket:                   12
 ```
 
+### nondeterminism of the naive abstraction
+
+### controlling what work each thread does
+
+## ex: counting correctly this time
+
 > [!TODO]
 >
-> - touch on nondeterminism of pragma
 > - show how above reimpl of count actually doesn't work, introduce solution w/ `for` arg to pragma & data race solution
+
+## observability & perf
+
+> [!TODO]
+>
 > - get into some observability w/ omp's ability to see num threads & current thread id, + measure time for perf
