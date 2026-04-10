@@ -1,8 +1,13 @@
-import { createDirectives } from "marked-directive"
+import {
+  createDirectives,
+  DirectiveConfig,
+  presetDirectiveConfigs,
+} from "marked-directive"
 import hljs from "highlight.js"
 import { Marked, type MarkedExtension } from "marked"
 import markedAlert from "marked-alert"
 import { markedHighlight } from "marked-highlight"
+import markedKatex from "marked-katex-extension"
 import type { RenderFn } from "vite-plugin-static-md/dist/options"
 
 export type ExtBuilder = () => MarkedExtension
@@ -100,4 +105,309 @@ function gfmAlerter(): MarkedExtension {
   }
 }
 
-export default makeRenderer([codeHighlighter, gfmAlerter, createDirectives])
+type Month =
+  | "Jan."
+  | "Feb."
+  | "March"
+  | "April"
+  | "June"
+  | "July"
+  | "Aug."
+  | "Sep."
+  | "Oct."
+  | "Nov."
+  | "Dec."
+
+type RefItemBase = {
+  id: string
+  leadLastName: string
+  authors: string
+  month?: Month
+  year: string
+  title: string
+  seen: number
+}
+type RefItemJournal = RefItemBase & {
+  type: "journal"
+  journal: string
+  link?: string
+  volNum?: number
+  issueNum?: number
+  pageNum?: string
+  articleNum?: number
+}
+type RefItemArXiv = RefItemBase & {
+  type: "arxiv"
+  arxivId: string
+  link: string
+}
+type RefItemOnlineDoc = RefItemBase & {
+  type: "online-doc"
+  website: string
+  retreived: string
+  link: string
+  archive?: string
+}
+type RefItemConfProceedings = RefItemBase & {
+  type: "proceedings"
+  conference: string
+  day: string
+  location: string
+  publisher: string
+  pageNum: string
+  link?: string
+}
+type RefItemBook = RefItemBase & {
+  type: "book"
+  chapter?: string
+  publisher: string
+  pageNum: string
+  link?: string
+}
+type _RefListItem =
+  | RefItemJournal
+  | RefItemArXiv
+  | RefItemOnlineDoc
+  | RefItemConfProceedings
+  | RefItemBook
+type RefListItem = _RefListItem & {
+  sortKey: keyof _RefListItem | undefined
+}
+
+const allowed_items = new Set([
+  "journal",
+  "arxiv",
+  "online-doc",
+  "proceedings",
+  "book",
+])
+
+function parseItem(item: any): [string, RefListItem] | undefined {
+  // TODO: actually parse items for correct information
+  if (allowed_items.has(item.type)) return [item.id, item]
+  else return undefined
+}
+
+function sortRefs(a: RefListItem, b: RefListItem): 0 | -1 | 1 {
+  // sort by specified key, defaulting to last name & using id as a fallback
+  const aKey = a[a.sortKey!] || a.leadLastName || a.id
+  const bKey = b[b.sortKey!] || b.leadLastName || b.id
+
+  if (aKey > bKey) return 1
+  if (aKey < bKey) return -1
+  return 0
+}
+
+function renderRefItem(item: RefListItem): string {
+  const num = `value=${item.seen!}` || ""
+  let body = ""
+  body = item.authors + ". "
+  body += item.year + ". "
+  body += item.title + ". "
+
+  switch (item.type) {
+    case "journal":
+      body += `<em>${item.journal}</em>`
+      if (item.volNum) {
+        body += ` ${item.volNum}`
+      }
+      if (item.issueNum) {
+        if (item.volNum) body += ", "
+        else body += " "
+        body += item.issueNum
+      }
+      if (item.articleNum) {
+        if (item.volNum || item.issueNum) body += ", "
+        else body += " "
+        body += `Article ${item.articleNum}`
+      }
+      body += ` (${item.month} ${item.year})`
+      if (item.pageNum) {
+        body += ", " + item.pageNum
+      }
+      body += ". "
+      if (item.link) body += renderLink(item.link)
+
+      break
+    case "arxiv":
+      body += `arXiv:${item.arxivId}. `
+      body += `Retrieved from ${renderLink(item.link)}`
+
+      break
+    case "online-doc":
+      body += item.website + ". "
+      body += `Retrieved ${item.retreived} from `
+      body += renderLink(item.link)
+      if (!!item.archive) {
+        body += `<em>, archived at </em>${item.archive}`
+      }
+      body += "."
+
+      break
+    case "proceedings":
+      body += `In <em>${item.conference}</em>, `
+      body += `${item.month} ${item.day}, ${item.year}, `
+      body += item.location + ". "
+      body += item.publisher + ", "
+      body += item.pageNum + "."
+      if (item.link) body += " " + renderLink(item.link)
+
+      break
+    case "book":
+      if (!!item.chapter) body += `${item.chapter}. <em>In ${item.title}</em>. `
+      else body += `<em>${item.title}</em>. `
+      body += item.publisher + ", "
+      body += item.pageNum + "."
+      if (item.link) body += " " + renderLink(item.link)
+
+      break
+  }
+
+  return `<li id="ref-${item.id}" ${num}>${body}</li>`
+}
+
+function renderLink(
+  href: string,
+  opts?: { text?: string; title?: string },
+): string {
+  let body = opts?.text || href
+  let attrs = `href="${href}"`
+
+  if (opts?.title) {
+    attrs += ` title="${opts?.title}"`
+  }
+
+  if (!/^(#|\|\.)/.test(href)) {
+    attrs += ' rel="external" target="_blank"'
+  }
+
+  return `<a ${attrs}>${body}</a>`
+}
+
+function customDirector(): MarkedExtension {
+  let refs: Map<string, RefListItem> = new Map()
+  let nextOrder = 1
+
+  const refListCounterReset: DirectiveConfig = {
+    level: "block",
+    marker: "::",
+    renderer(token) {
+      if (token.meta.name == "ref-reset") nextOrder = 1
+
+      return false
+    },
+  }
+
+  const refItem: DirectiveConfig = {
+    level: "block",
+    marker: "::",
+    renderer(token) {
+      if (token.meta.name == "ref-item") {
+        // console.info("parsing reference item")
+        // console.dir(token.attrs)
+        const parsed = parseItem(token.attrs)
+
+        if (parsed != undefined) {
+          const [id, item] = parsed
+          refs.set(id, item)
+          // console.log(`parsed ${item.type} reference item ${id}`)
+        } else {
+          console.warn(`skipping invalid reference item: ${token.attrs}$`)
+        }
+      }
+
+      return false
+    },
+  }
+
+  const refsList: DirectiveConfig = {
+    level: "block",
+    marker: "::",
+    renderer(token) {
+      if (token.meta.name != "ref-list") {
+        return false
+      }
+
+      // console.info("rendering refs list:")
+      // console.dir(refs)
+
+      const items = Array.from(refs.values())
+        .sort(sortRefs)
+        .filter((item) => {
+          if (!item.seen) {
+            console.warn(`Reference not used: ${item.id}`)
+            return false
+          }
+
+          return true
+        })
+        .map((item) => renderRefItem(item))
+        .join("\n")
+
+      let html = '<section id="references">\n'
+      html += "<h2>References</h2>\n"
+      html += `<ol class="references-list">\n${items}</ol>\n`
+      html += "</section>"
+
+      return html
+    },
+  }
+
+  const inlineCitation: DirectiveConfig = {
+    level: "inline",
+    marker: ":",
+    renderer(token) {
+      if (token.meta.name == "ref") {
+        const links = token.text
+          .split(/, */)
+          .reduce((list: string[], tok: string): string[] => {
+            const ref = refs.get(tok)
+            const id = ref?.id
+
+            if (!id) {
+              console.error(`CITATION MISSING: ${tok}`)
+              return [
+                ...list,
+                renderLink("#", { text: `CITATION-MISSING: ${tok}` }),
+              ]
+            }
+
+            if (!ref.seen) {
+              console.info(`ref ${ref.id} not seen previously`)
+              ref.seen = nextOrder
+              nextOrder++
+            }
+            console.info(`ref ${ref.id} [${ref.seen}] cited`)
+
+            return [
+              ...list,
+              renderLink(`#ref-${id}`, {
+                text: `${ref.seen}`,
+                title: `${ref.authors}. ${ref.year}. ${ref.title}`,
+              }),
+            ]
+          }, [])
+          .join(", ")
+
+        return `[${links}]`
+      }
+
+      return false
+    },
+  }
+
+  return createDirectives([
+    ...presetDirectiveConfigs,
+    refListCounterReset,
+    refItem,
+    refsList,
+    inlineCitation,
+  ])
+}
+
+export default makeRenderer([
+  () => markedKatex({ trust: true }),
+  codeHighlighter,
+  gfmAlerter,
+  customDirector,
+])

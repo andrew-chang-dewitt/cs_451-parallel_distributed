@@ -25,6 +25,7 @@ html {
   max-width: var(--layout-max-width);
   margin: 5rem auto 10rem auto;
   font-family: var(--fonts-family-sans);
+  font-weight: var(--fonts-weight-sans-normal);
   font-size: var(--fonts-size-regular);
   text-rendering: optimizeLegibility;
   color: var(--colors-dark);
@@ -143,6 +144,44 @@ img {
 }
 p:has(> img) {
   text-indent: 0;
+}
+
+.outline ol > li::marker {
+  font-style: italic;
+  font-family: var(--fonts-family-serif);
+}
+.outline li > p {
+  margin-block-end: 0;
+}
+.outline > ol {
+  font-size: var(--fonts-size-regular-medium);
+  font-family: var(--fonts-family-serif);
+  font-weight: var(--fonts-weight-serif-normal-bold);
+  list-style-type: upper-roman;
+}
+.outline > ol > li > ol {
+  font-size: var(--fonts-size-regular);
+  font-family: var(--fonts-family-sans);
+  font-weight: var(--fonts-weight-sans-normal);
+  list-style-type: upper-alpha;
+}
+.outline > ol > li > ol > li > ol {
+  font-size: var(--fonts-size-normal);
+  font-weight: var(--fonts-weight-sans-normal);
+  list-style-type: decimal;
+}
+.outline > ol > li > ol > li > ol > li > ol {
+  font-weight: var(--fonts-weight-sans-normal);
+  list-style-type: lower-roman;
+}
+.outline > ol > li > ol > li > ol > li > ol > li > ol {
+  list-style-type: lower-alpha;
+}
+.outline > ol > li > ol > li > ol > li > ol > li > ol > li > ol {
+  list-style-type: lower-greek;
+}
+.outline > ol > li > ol > li > ol > li > ol > li > ol > li > ol ol {
+  list-style-type: circle;
 }
 
 #references > ol {

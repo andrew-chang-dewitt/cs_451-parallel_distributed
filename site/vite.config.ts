@@ -1,5 +1,6 @@
 import { resolve } from "path"
 import type { UserConfig } from "vite"
+// import { DevTools } from "@vitejs/devtools"
 
 import staticMd from "vite-plugin-static-md"
 import renderFn from "./src/lib/renderFn"
@@ -22,8 +23,14 @@ export default {
         404: resolve(HTML_ROOT, "404.html"),
       },
     },
+    // rolldownOptions: {
+    //   devtools: {}, // enable devtools mode
+    // },
   },
-  plugins: [ssg],
+  plugins: [
+    ssg,
+    // DevTools(),
+  ],
   resolve: { alias: { $: SRC_ROOT } },
   root: HTML_ROOT,
 } satisfies UserConfig

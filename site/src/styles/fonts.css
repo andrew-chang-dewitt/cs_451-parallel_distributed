@@ -70,8 +70,8 @@
 
 @media screen and (prefers-color-scheme: dark) {
   :root {
-    --fonts-weight-sans-normal: 500;
-    --fonts-weight-sans-normal-bold: 550;
+    --fonts-weight-sans-normal: 425;
+    --fonts-weight-sans-normal-bold: 525;
     --fonts-weight-sans-semi-bold: 600;
   }
 }
