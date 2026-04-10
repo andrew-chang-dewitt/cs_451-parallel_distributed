@@ -20,4 +20,4 @@
 	url = git@github.com:andrew-chang-dewitt/cs_451-hw_04-berkeley_sockets.git
 [submodule "hw/hw_05"]
 	path = hw/hw_05
-	url = git@github.com:iltech-cs451-sp26/assignment-5-andrew-chang-dewitt.git
+	url = git@github.com:andrew-chang-dewitt/cs_451-hw_05-openmp.git
