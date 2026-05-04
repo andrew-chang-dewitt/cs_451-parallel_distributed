@@ -101,19 +101,21 @@ access vector instructions. the compiler handles register & stack allocation,
 void
 add4floats_plain (float x[4], float y[4], float out[4])
 {
+  // out[] = x[] + y[]
+  // for each i (where 0 <= i < 4): out[i] = x[i] + y[i]
   for (int i = 0; i < 4; i++) {
-    out[i] = x[i] + y[i];
+    out[i] = x[i] + y[i];   // scalar: one addition per iteration
   }
 }
 
-// SSE intrinsics version: load 4 floats into 128-bit regs, add, store
+// SSE intrinsics version: load 4 floats into 128-bit regs, add all 4 at once, store
 void
 add4floats(float in1[4], float in2[4], float out[4])
 {
-  __m128 x   = _mm_loadu_ps(in1);
-  __m128 y   = _mm_loadu_ps(in2);
-  __m128 sum = _mm_add_ps(x, y);
-  _mm_storeu_ps(out, sum);
+  __m128 x   = _mm_loadu_ps(in1);   // load 4 floats from in1 → 128-bit XMM register (unaligned)
+  __m128 y   = _mm_loadu_ps(in2);   // load 4 floats from in2 → 128-bit XMM register (unaligned)
+  __m128 sum = _mm_add_ps(x, y);    // add all 4 lanes simultaneously (packed single-precision)
+  _mm_storeu_ps(out, sum);           // store 4-lane result back to memory (unaligned)
 }
 ```
 
@@ -123,14 +125,22 @@ add4floats(float in1[4], float in2[4], float out[4])
 void
 add8floats(float in1[8], float in2[8], float out[8])
 {
-  __m256 x   = _mm256_loadu_ps(in1);
-  __m256 y   = _mm256_loadu_ps(in2);
-  __m256 sum = _mm256_add_ps(x, y);
-  _mm256_storeu_ps(out, sum);
+  __m256 x   = _mm256_loadu_ps(in1);   // load 8 floats from in1 → 256-bit YMM register (unaligned)
+  __m256 y   = _mm256_loadu_ps(in2);   // load 8 floats from in2 → 256-bit YMM register (unaligned)
+  __m256 sum = _mm256_add_ps(x, y);    // add all 8 lanes simultaneously
+  _mm256_storeu_ps(out, sum);           // store 8-lane result back to memory (unaligned)
 }
 ```
 
 ### accumulation w/ AVX (calc2)
+
+the chapter next tackles examples that are "slightly more complex"—shifting from
+adding two arrays element-wise to accumulating (summing) a single array. a scalar
+version (`calculate`) with an 8-way manually unrolled inner loop comes first,
+followed by `calculate_vec` which accumulates across two arrays. `calc2` is the
+AVX-intrinsics version of the same idea: it keeps a running total in a 256-bit
+vector register so that 8 additions happen in parallel per loop iteration, then
+collapses the 8-lane result into a scalar total at the end.
 
 ```c
 void
@@ -139,19 +149,23 @@ calc2 (int SIZE, float data[])
   __m256 totalMM;
   float total = 0.0f;
 
+  // initialize all 8 lanes of the accumulator to 0.0
   totalMM = _mm256_set_ps(0.0f, 0.0f, 0.0f, 0.0f,
                           0.0f, 0.0f, 0.0f, 0.0f);
 
   for (int i = 0; i < SIZE; i+=8) {
+    // pack 8 consecutive floats from data[] into a 256-bit register
     __m256 step = _mm256_set_ps(data[i+0], data[i+1],
                                 data[i+2], data[i+3],
                                 data[i+4], data[i+5],
                                 data[i+6], data[i+7]);
+    // add all 8 lanes of step to the corresponding lanes of totalMM (8 adds at once)
     totalMM = _mm256_add_ps(step, totalMM);
   }
 
   float buf[8];
-  _mm256_store_ps(buf, totalMM);
+  _mm256_store_ps(buf, totalMM);   // store the 8-lane vector result to a scalar buffer (aligned)
+  // collapse the 8-lane sum into a single scalar total
   total = buf[0] + buf[1] + buf[2] + buf[3]
         + buf[4] + buf[5] + buf[6] + buf[7];
 }
