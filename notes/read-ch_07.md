@@ -134,7 +134,7 @@ add8floats(float in1[8], float in2[8], float out[8])
 
 ### accumulation w/ AVX (calc2)
 
-the chapter next tackles examples that are "slightly more complex"—shifting from
+a slightly more complex example—shifting from
 adding two arrays element-wise to accumulating (summing) a single array. a scalar
 version (`calculate`) with an 8-way manually unrolled inner loop comes first,
 followed by `calculate_vec` which accumulates across two arrays. `calc2` is the
