@@ -146,6 +146,12 @@ p:has(> img) {
   text-indent: 0;
 }
 
+/* reset list padding to known value */
+ol,
+ul {
+  padding-inline-start: var(--layout-list-padding-start);
+}
+
 .outline ol > li::marker {
   font-style: italic;
   font-family: var(--fonts-family-serif);

@@ -10,6 +10,8 @@
   --layout-grid-gap: var(--layout-margin);
   --layout-grid-gap-wide: calc(2 * var(--layout-grid-gap));
 
+  --layout-list-padding-start: 2.5rem;
+
   --layout-paragraph-indent: 2rem;
 
   --layout-first-subtitle: 0.75rem;
@@ -45,6 +47,10 @@
   *:has(+ .right-aside:not(.after)) {
     width: 60%;
   }
+  ul:has(+ .right-aside:not(.after)),
+  ol:has(+ .right-aside:not(.after)) {
+    width: calc(60% - var(--layout-list-padding-start));
+  }
   .right-aside {
     width: calc(40% - var(--layout-grid-gap-wide));
   }
@@ -52,6 +58,10 @@
 @media print {
   *:has(+ .right-aside:not(.after)) {
     width: 4in;
+  }
+  ul:has(+ .right-aside:not(.after)),
+  ol:has(+ .right-aside:not(.after)) {
+    width: calc(4in - var(--layout-list-padding-start));
   }
   .right-aside {
     width: calc(3.5in - var(--layout-grid-gap-wide));
