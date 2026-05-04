@@ -1,5 +1,5 @@
 ---
-title: "Parallel & Distributed: vector processing (reading)"
+title: "Parallel & Distributed: vector processing"
 description: "Reading notes on Chapter 7: Vector processing. Covers packed values in vector registers, SIMD lanes, x86 vector extensions (MMX/SSE/AVX), intrinsics for vector programming, & key code examples."
 keywords:
   - "simd"
@@ -16,13 +16,14 @@ keywords:
   - "illinois tech"
 meta:
   byline: Andrew Chang-DeWitt
-  published: "2026-05-04T00:00-06:00"
+  published: "2026-03-26T00:00-06:00"
+  updated: "2026-05-04T00:00-06:00"
 ---
 
 > [!NOTE]
 >
 > reading notes on chapter 7 of the course textbook by Nik Sultana (© 2025,
-> licensed CC BY-NC-SA 4.0). source material only; no outside references.
+> licensed CC BY-NC-SA 4.0). code samples largely unchanged from source material.
 
 ## agenda
 
@@ -45,6 +46,7 @@ data item. all lanes in a register are assumed to hold the same type (e.g.
 all signed ints, or all single-precision floats).
 
 example: a 128-bit XMM register can be split into either:
+
 - 2 lanes of 64-bit values, or
 - 4 lanes of 32-bit values
 
@@ -56,22 +58,47 @@ example: a 128-bit XMM register can be split into either:
 > holds just that one value. vector instructions, by contrast, are grouped
 > into families that simultaneously process all lanes of a register.
 
-## x86 vector extensions
+```no-linenums
+  general-purpose register segments (scalar value)
++---------------------------+-------------+-------------+
+|                           |             |     ax      |
+|           rax             |     eax     +------+------+
+|                           |             |  ah  |  al  |
++---------------------------+-------------+------+------+
+64                          32            16            0
+                       width (bits)
 
-| extension | register | width |
-|-----------|----------|-------|
-| MMX       | MM       | 64-bit |
-| SSE       | XMM      | 128-bit |
-| AVX       | YMM      | 256-bit |
-| AVX-512   | ZMM      | 512-bit |
+64            48            32            16            0
++-------------+-------------+-------------+-------------+
+|    x_3      |   x_2       |   x_1       |   x_0       |
++-------------+-------------+-------------+-------------+
++-------------+-------------+-------------+-------------+
+|    y_3      |   y_2       |   y_1       |   y_0       |
++-------------+-------------+-------------+-------------+
+  vector register lanes (packed)
+    - shown here:
+        MMX e.g. 16-bit lane width
+    - other registers w/ larger lane widths exist:
+        XMM e.g. 128-bit
+        YMM e.g. 256-bit
+        ZMM e.g. 512-bit
+
+  above shows 2 vector registers, `x` & `y`
+    - a built-in vector op, `f(...)`, may take both as
+      input & give their result as
++-------------+-------------+-------------+-------------+
+| f(x_3,y_3)  | f(x_2,y_2)  | f(x_1,y_1)  | f(x_0,y_0)  |
++-------------+-------------+-------------+-------------+
+```
 
 notes:
+
 - MM, XMM & YMM are segments within ZMM
 - any x86-64 processor must also support SSE2
 - AVX-512 provides 512-bit ZMM registers
 - we assume AVX2 support, giving 16 256-bit registers (`ymm0`–`ymm15`)
 
-> [!NOTE]
+> [!ASIDE]
 >
 > MMX initially only supported packed integers. SSE introduced floating-point
 > packed operations.
@@ -84,10 +111,10 @@ access vector instructions. the compiler handles register & stack allocation,
 
 ### key types (AVX/AVX2)
 
-- `__m128` — 128-bit, single-precision floats (4 lanes)
-- `__m256` — 256-bit, single-precision floats (8 lanes)
-- `__m256i` — 256-bit, integers (any precision)
-- `__m256d` — 256-bit, double-precision floats (4 lanes)
+- `__m128`&mdash;128-bit, single-precision floats (4 lanes)
+- `__m256`&mdash;256-bit, single-precision floats (8 lanes)
+- `__m256i`&mdash;256-bit, integers (any precision)
+- `__m256d`&mdash;256-bit, double-precision floats (4 lanes)
 
 ## key code examples
 
@@ -134,15 +161,19 @@ add8floats(float in1[8], float in2[8], float out[8])
 
 ### accumulation w/ AVX (calc2)
 
-a slightly more complex example—shifting from
-adding two arrays element-wise to accumulating (summing) a single array. a scalar
-version (`calculate`) with an 8-way manually unrolled inner loop comes first,
-followed by `calculate_vec` which accumulates across two arrays. `calc2` is the
+a slightly more complex example&mdash;shifting from adding two arrays
+element-wise to accumulating (summing) a single array. a scalar version
+(`calculate`) with an 8-way manually unrolled inner loop comes first, followed
+by `calculate_vec` which accumulates across two arrays. `calc2` is the
 AVX-intrinsics version of the same idea: it keeps a running total in a 256-bit
 vector register so that 8 additions happen in parallel per loop iteration, then
 collapses the 8-lane result into a scalar total at the end.
 
 ```c
+#include "stdio.h"
+#include "immintrin.h"
+#include "x86intrin.h"
+
 void
 calc2 (int SIZE, float data[])
 {
