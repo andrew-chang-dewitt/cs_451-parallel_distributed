@@ -1,5 +1,5 @@
 ---
-title: "Parallel & Distributed: SystemVerilog (reading)"
+title: "Parallel & Distributed: SystemVerilog"
 description: "Reading notes on Chapter 10: SystemVerilog. Covers hardware description languages (HDLs), the SystemVerilog language (modules, testbenches, datatypes, combinational & sequential logic), tooling (iverilog, Verilator, GTKWave), & waveform-based simulation."
 keywords:
   - "systemverilog"
@@ -20,8 +20,8 @@ meta:
 
 > [!NOTE]
 >
-> reading notes on chapter 10 of the course textbook by Nik Sultana (© 2026,
-> licensed CC BY-NC-SA 4.0). source material only; no outside references.
+> reading notes on chapter 10 of the course textbook by Nik Sultana (© 2025,
+> licensed CC BY-NC-SA 4.0). code samples largely unchanged from source material.
 
 ## agenda
 
@@ -44,6 +44,7 @@ _**def: HDL (Hardware Description Language)**_&mdash;a language for designing
 & reasoning about hardware components at a higher level of abstraction than
 individual gates. HDL code is compiled to a circuit description that composes
 gates & memory. that circuit can then be used to:
+
 - program reconfigurable hardware (FPGAs, CPLDs), or
 - guide fabrication of actual silicon chips.
 
@@ -68,12 +69,12 @@ use it to produce simulations of hardware designs.
 
 ## key values in SV
 
-| value | meaning |
-|-------|---------|
-| `0` | logical zero |
-| `1` | logical one |
-| `Z` | high-impedance (disconnected hardware / no value available) |
-| `X` | unknown value |
+| value | meaning                                                     |
+| ----- | ----------------------------------------------------------- |
+| `0`   | logical zero                                                |
+| `1`   | logical one                                                 |
+| `Z`   | high-impedance (disconnected hardware / no value available) |
+| `X`   | unknown value                                               |
 
 Z & X are not supported by Verilator. Logic starts out as X until initialized
 (usually via a reset signal).
@@ -81,10 +82,12 @@ Z & X are not supported by Verilator. Logic starts out as X until initialized
 ## datatypes
 
 ranges over `{0, 1}` only:
+
 - `bit`, `byte`, `shortint`, `int`, `longint` — all signed (except `bit`);
   use `unsigned` keyword to make them unsigned
 
 ranges over `{0, 1, Z, X}`:
+
 - `wire` — for combinational connections
 - `reg` — for holding state (used in `always` blocks)
 - `logic` — more general; use for both
@@ -199,14 +202,14 @@ end
 ### logic operators
 
 | operation | bit-wise SV syntax | logical SV syntax |
-|-----------|-------------------|-------------------|
-| AND | `&` | `&&` |
-| OR | `\|` | `\|\|` |
-| NOT | `~` | `!` |
-| XOR | `^` | — |
-| NOR | `~\|` | — |
-| NAND | `~&` | — |
-| XNOR | `~^` | — |
+| --------- | ------------------ | ----------------- |
+| AND       | `&`                | `&&`              |
+| OR        | `\|`               | `\|\|`            |
+| NOT       | `~`                | `!`               |
+| XOR       | `^`                | —                 |
+| NOR       | `~\|`              | —                 |
+| NAND      | `~&`               | —                 |
+| XNOR      | `~^`               | —                 |
 
 bit-wise operators (`&`, `|`, `~`, `^`) work on arrays of bits. logical
 operators (`&&`, `||`) work on scalar boolean values.
@@ -255,6 +258,7 @@ _**def: sequential logic**_&mdash;logic w/ memory/state; output depends on
 both current inputs & past state.
 
 two common 1-bit memory abstractions:
+
 - _**latch**_&mdash;level-triggered; output changes when the enable signal
   is at a given level
 - _**flip-flop**_&mdash;edge-triggered; output changes on the clock edge.
@@ -289,10 +293,10 @@ endmodule;
 
 two types of assignment in `always` blocks:
 
-| type | symbol | behavior |
-|------|--------|----------|
-| blocking | `=` | sequential; each assignment completes before next |
-| non-blocking | `<=` | concurrent; all RHS evaluated before any LHS updated |
+| type         | symbol | behavior                                             |
+| ------------ | ------ | ---------------------------------------------------- |
+| blocking     | `=`    | sequential; each assignment completes before next    |
+| non-blocking | `<=`   | concurrent; all RHS evaluated before any LHS updated |
 
 compare these two patterns:
 
@@ -329,11 +333,13 @@ arithmetic: `+`, `-`, `*`, `/`, `%` (mod), `**` (exponentiation)
 > inefficiently—prefer simpler primitives when possible.
 
 shift operators:
+
 - `>>` — logical shift right (inserts zeroes)
 - `>>>` — arithmetic shift right (inserts sign bit)
 - `<<`, `<<<` — left equivalents
 
 comparison:
+
 - `==`, `!=` — equality for `{0, 1}` values
 - `===`, `!==` — equality including X & Z (non-synthesizable)
 - `>`, `<`, `>=`, `<=` (note `<=` is overloaded—also non-blocking assignment)
@@ -352,6 +358,7 @@ always @*              // triggered by any change to any signal read in block
 
 there is much more to SystemVerilog & hardware design beyond this introduction.
 resources for further exploration:
+
 - open RISC-V implementations: https://github.com/riscv/
 - OpenTitan hardware security chip
 - FPGA boards for hands-on practice
