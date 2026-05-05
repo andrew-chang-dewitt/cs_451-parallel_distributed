@@ -1,7 +1,7 @@
 # CS 451: Parallel & Distributed Computing
 ## Practice Exam — Answer Key
 
-**Total: 54 marks**
+**Total: 91 marks**
 
 ---
 
@@ -354,3 +354,298 @@ preferred convention for clocked logic.)*
 | `X`   | **Yes** — unknown value; not in `bit`'s range `{0, 1}` |
 
 *(1 mark for both Z and X correct; 1 mark for both 0 and 1 correct.)*
+
+---
+
+## Question 11 — Software Compartmentalization (4 marks)
+
+**11a.** (1 mark)
+
+**Privilege separation (privsep)** is the technique of composing software so
+that different parts of the same application execute at runtime with different
+privilege levels. It limits the blast radius of a security vulnerability: if
+one component is compromised, it cannot escalate to control the entire
+application because it only has the minimum privileges it needs.
+
+**11b.** (2 marks)
+
+| Structure | Definition |
+|-----------|-----------|
+| **Segment** | Some code making up a logical part of a larger program (one or more expressions/statements). |
+| **Compartment** | A portion of code that shares state across segments; may run at a specific privilege level. |
+| **Domain** | Shared memory/handles/resources accessible by one or more compartments (e.g., a VM or sandbox). |
+
+*(1 mark for all three names correct; 1 mark for definitions substantially correct.)*
+
+**11c.** (1 mark)
+
+**A, B, and C** are all correct:
+
+- **A** ✓ — `libcompart` requires arguments to be serialized (packed into an
+  `extension_data` struct) before calling across a compartment boundary.
+- **B** ✓ — Each compartment can be configured with a different UID/GID,
+  granting different OS-level privileges.
+- **C** ✓ — The caller invokes a function pointer obtained from
+  `compart_register_fn`, not a direct function call.
+- **D** ✗ — Compartments can run on separate machines/VMs (different domains);
+  being on the same physical machine is not required.
+
+*(Award 1 mark only if A, B, C are ticked and D is not.)*
+
+---
+
+## Question 12 — Multithreading: Private vs. Shared Variables (5 marks)
+
+**12a.** (4 marks) Completed table:
+
+| Definition | Is Private? | Is Shared? |
+|------------|:-----------:|:----------:|
+| `shared_count` (global) | | ✓ |
+| `LIMIT` (global const) | | ✓ |
+| `tid` (local in `worker`) | ✓ | |
+| `local` (local in `worker`) | ✓ | |
+| `arg` (parameter to `worker`) | ✓ | |
+| `id1` (local in `main`) | ✓ | |
+| `t1` (local in `main`) | ✓ | |
+| `i` (loop variable in `worker`) | ✓ | |
+
+*(4 marks: deduct ½ mark per incorrect row; minimum 0.)*
+
+**Notes:**
+
+- `shared_count` and `LIMIT` are global variables, so both threads see the
+  same memory location — they are **shared**.
+- `arg` points to a unique local in `main` (`id1` or `id2`), so each thread's
+  copy of the pointer itself is private even though it was passed from `main`.
+- `id1` / `id2` live on `main`'s stack and are pointed to by separate threads,
+  but after `pthread_create` returns their addresses are fixed. Each thread has
+  a private `arg` pointer, but the underlying `int` they point to could
+  technically be considered shared. For full credit accept "private" for `id1`
+  (it is only written by `main` and read by one thread).
+- All stack-allocated locals within `worker` (`tid`, `local`, `i`) are private
+  to each thread's stack frame.
+
+**12b.** (1 mark)
+
+**No**, `shared_count` will **not** always equal `200`. The `++` operation
+is a **read-modify-write** that compiles to three machine instructions (load,
+increment, store). Two threads can interleave those instructions, causing lost
+updates. This is a classic **data race**.
+
+---
+
+## Question 13 — Sockets & Distributed IPC (3 marks)
+
+**13a.** (1 mark)
+
+- **socket**: An endpoint of a connection — the software handle (file
+  descriptor) used by a process to send and receive data.
+- **port**: A 16-bit integer that identifies a specific process (or service)
+  on a machine, used to route incoming connections to the correct socket.
+
+*(Accept any reasonable definitions that capture the key ideas.)*
+
+**13b.** (2 marks)
+
+| Step (out of order) | Order |
+|---------------------|:-----:|
+| Client calls `close()` on the connection | **4** |
+| Server reads EOF from client and closes the connection | **5** |
+| Server starts listening at its socket address and port | **1** |
+| Client calls `connect` to the server | **2** |
+| Server calls `accept` to complete the client connection | **3** |
+
+*(2 marks: 1 mark for steps 1–3 in correct relative order; 1 mark for steps
+4–5 in correct relative order.)*
+
+---
+
+## Question 14 — OpenMP: Observability & Thread Identity (4 marks)
+
+**14a.** (1 mark)
+
+`omp_get_num_threads()`
+
+**14b.** (1 mark)
+
+`omp_get_thread_num()`
+
+**14c.** (1 mark)
+
+`OMP_NUM_THREADS`
+
+(e.g., `OMP_NUM_THREADS=4 ./a.out`)
+
+**14d.** (1 mark)
+
+```c
+printf("Hello from thread %d of %d\n",
+       omp_get_thread_num(),    // Blank 1: thread ID (0-based)
+       omp_get_num_threads());  // Blank 2: total threads in team
+```
+
+---
+
+## Question 15 — MPI Collective Operations (4 marks)
+
+**15a.** (2 marks)
+
+| Operation | Letter |
+|-----------|:------:|
+| `MPI_Bcast`   | **C** |
+| `MPI_Scatter` | **B** |
+| `MPI_Gather`  | **A** |
+| `MPI_Reduce`  | **D** |
+
+*(2 marks: 1 mark for any two correct; 2 marks for all four correct.)*
+
+**15b.** (1 mark)
+
+`MPI_Allreduce` — applies the reduction and delivers the result to **every**
+process in the communicator.
+
+**15c.** (1 mark)
+
+`-n` (e.g., `mpiexec -n 8 ./a.out` launches 8 MPI processes).
+
+---
+
+## Question 16 — SIMD Intrinsics: Code Analysis (4 marks)
+
+**16a.** (1 mark)
+
+**128 bits**
+
+**16b.** (2 marks)
+
+| Call | What it does |
+|------|-------------|
+| `_mm_loadu_ps(in1)` | Loads 4 single-precision floats from the (possibly unaligned) memory address `in1` into a 128-bit XMM register. |
+| `_mm_add_ps(x, y)` | Adds all 4 corresponding lanes of `x` and `y` simultaneously (4 additions in one instruction). |
+| `_mm_storeu_ps(out, sum)` | Stores the 4-lane result from the XMM register back to the (possibly unaligned) memory address `out`. |
+
+**16c.** (1 mark)
+
+**Unaligned** (`_mm_loadu_ps` / `_mm_storeu_ps`) is the safer choice.
+Aligned variants (`_mm_load_ps` / `_mm_store_ps`) require the address to be
+aligned to the register width (16 bytes for 128-bit, 32 bytes for 256-bit);
+accessing an unaligned address with the aligned variant will cause a
+segmentation fault or bus error at runtime.
+
+---
+
+## Question 17 — CUDA: Memory Management (4 marks)
+
+**17a.** (1 mark)
+
+`cudaMalloc` allocates memory **only on the device (GPU)**; the host cannot
+directly access the resulting pointer. Explicit `cudaMemcpy` calls are needed
+to move data between host and device.
+
+`cudaMallocManaged` allocates **unified / managed memory** accessible from
+**both** host and device without explicit `cudaMemcpy` calls. The CUDA runtime
+migrates pages as needed.
+
+**17b.** (2 marks)
+
+> **Step 3**: Host **launches a kernel** on the device (e.g.,
+> `kernel<<<grid, block>>>(args)`).
+
+> **Step 5**: Host copies results **device → host**
+> (`cudaMemcpy(dst, src, N, cudaMemcpyDeviceToHost)`).
+
+*(1 mark per blank.)*
+
+**17c.** (1 mark)
+
+**1024 threads per block** (hardware limit on typical NVIDIA GPUs, as
+stated in the course notes on the FABRIC GPU node).
+
+---
+
+## Question 18 — SystemVerilog: Combinational Logic & Modules (3 marks)
+
+**18a.** (1 mark)
+
+Both `assign` and `always @*` describe combinational logic that re-evaluates
+whenever any input changes. The functional result is the same. The difference
+is syntactic and structural: `assign` is a **continuous assignment** at the
+module level and is typically used for simple wire connections, while
+`always @*` is a **procedural block** that can contain `if`/`case` statements
+and other sequential-style constructs, making it more flexible for complex
+combinational logic.
+
+**18b.** (1 mark)
+
+```systemverilog
+  always @*
+  begin
+    result = a | b;
+  end
+```
+
+*(The `@*` wildcard sensitivity list re-triggers on any change to `a` or `b`,
+making this purely combinational. Removing `clk` from the port list is also
+correct but not required for this mark.)*
+
+**18c.** (1 mark)
+
+**C) `always @*`**
+
+The `@*` wildcard causes the block to be sensitive to any signal read within
+it. Options A and B trigger only on a clock edge; option D explicitly lists
+signals but is less idiomatic than `@*`.
+
+---
+
+## Question 19 — FABRIC Testbed (2 marks)
+
+**19a.** (1 mark)
+
+FABRIC is a large-scale **research testbed** (similar in purpose to ARPANET)
+for experimenting with distributed and parallel computing. In this course it
+provides a uniform, cloud-like platform for hands-on assignments and projects,
+giving students access to real distributed hardware (including GPUs) without
+managing physical infrastructure.
+
+**19b.** (1 mark)
+
+| Term | Letter |
+|------|:------:|
+| **slice**  | **C** |
+| **sliver** | **A** |
+| **worker** | **B** |
+
+---
+
+## Question 20 — Low-Level Programming: Intrinsics & RDTSC (4 marks)
+
+**20a.** (1 mark)
+
+A **compiler intrinsic** is a built-in compiler function that maps directly
+to one or more specific assembly instructions. Unlike inline assembly, the
+programmer does not need to manage register allocation or calling conventions
+manually — the compiler handles those details while still emitting the exact
+hardware instruction(s) the intrinsic targets.
+
+**20b.** (1 mark)
+
+`__rdtsc()` reads the **Time Stamp Counter (TSC)** — a hardware register that
+is incremented by the processor on every clock cycle. The returned value is
+an unsigned 64-bit count of CPU cycles since the last reset.
+
+**20c.** (1 mark)
+
+**B) `__rdtsc()` reads a hardware counter incremented each CPU clock cycle.**
+
+- A is wrong: `__rdtsc()` counts clock cycles, not wall-clock seconds.
+- C is wrong: the TSC counts all cycles regardless of privilege mode.
+- D is wrong: `(end - start) / COUNT` computes the **average** cycles per
+  call, not the total.
+
+**20d.** (1 mark)
+
+`#include "x86intrin.h"`
+
+(The full path of the header is `<x86intrin.h>`; on some platforms it is
+also accessible via `<immintrin.h>`.)

@@ -1,7 +1,7 @@
 # CS 451: Parallel & Distributed Computing
 ## Practice Exam
 
-**Total: 54 marks**
+**Total: 91 marks**
 
 > This practice exam covers material from the full course. ~70% of questions
 > draw from OpenMP, Low-Level Programming, MPI, CUDA, and SystemVerilog.
@@ -386,3 +386,333 @@ it is valid for `wire` but **NOT** for `bit`:
 | `1`   | ☐ Yes  ☐ No                     |
 | `Z`   | ☐ Yes  ☐ No                     |
 | `X`   | ☐ Yes  ☐ No                     |
+
+---
+
+## Question 11 — Software Compartmentalization (4 marks)
+
+**11a.** (1 mark) Define **privilege separation** (privsep) as a software
+security technique. What problem does it solve?
+
+> Answer:
+
+**11b.** (2 marks) The **compartment model** defines three key structures.
+Complete the table with a one-sentence definition of each:
+
+| Structure | Definition |
+|-----------|-----------|
+| Segment | |
+| Compartment | |
+| Domain | |
+
+**11c.** (1 mark) Tick **all** statements that correctly describe a
+`libcompart` inter-compartment function call:
+
+- ☐ A) Arguments must be serialized before the call
+- ☐ B) The compartments can run on different privilege levels (different UIDs)
+- ☐ C) The caller uses a function pointer registered with `compart_register_fn`
+- ☐ D) All compartments must execute on the same physical machine
+
+---
+
+## Question 12 — Multithreading: Private vs. Shared Variables (5 marks)
+
+Consider the following pthreads program:
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+volatile int shared_count = 0;
+const int LIMIT = 100;
+
+void *worker(void *arg) {
+    int tid = *((int *)arg);
+    int local = 0;
+    for (int i = 0; i < LIMIT; i++) {
+        local++;
+        shared_count++;
+    }
+    return NULL;
+}
+
+int main() {
+    int id1 = 1, id2 = 2;
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, worker, &id1);
+    pthread_create(&t2, NULL, worker, &id2);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("shared_count = %d\n", shared_count);
+    return 0;
+}
+```
+
+**12a.** (4 marks) Tick the box indicating whether each definition is
+**private** to a thread or **shared** among threads:
+
+| Definition | Is Private? | Is Shared? |
+|------------|:-----------:|:----------:|
+| `shared_count` (global) | ☐ | ☐ |
+| `LIMIT` (global const) | ☐ | ☐ |
+| `tid` (local in `worker`) | ☐ | ☐ |
+| `local` (local in `worker`) | ☐ | ☐ |
+| `arg` (parameter to `worker`) | ☐ | ☐ |
+| `id1` (local in `main`) | ☐ | ☐ |
+| `t1` (local in `main`) | ☐ | ☐ |
+| `i` (loop variable in `worker`) | ☐ | ☐ |
+
+**12b.** (1 mark) Will `shared_count` always equal `200` after both threads
+complete? If not, why not?
+
+> Answer:
+
+---
+
+## Question 13 — Sockets & Distributed IPC (3 marks)
+
+**13a.** (1 mark) Give a one-sentence definition for each term:
+
+- **socket**:
+- **port**:
+
+> Answer:
+
+**13b.** (2 marks) The following steps describe a TCP socket connection
+lifecycle but are **out of order**. Write the numbers 1–5 in the "Order"
+column to indicate the correct sequence (1 = first):
+
+| Step (out of order) | Order (1–5) |
+|---------------------|:-----------:|
+| Client calls `close()` on the connection | |
+| Server reads EOF from client and closes the connection | |
+| Server starts listening at its socket address and port | |
+| Client calls `connect` to the server | |
+| Server calls `accept` to complete the client connection | |
+
+---
+
+## Question 14 — OpenMP: Observability & Thread Identity (4 marks)
+
+**14a.** (1 mark) What OpenMP function returns the **total number of threads**
+in the current parallel region?
+
+> Answer:
+
+**14b.** (1 mark) What OpenMP function returns the **ID of the calling thread**
+within its team (numbered 0, 1, 2, …)?
+
+> Answer:
+
+**14c.** (1 mark) What environment variable can be set before running an OpenMP
+program to control the **default number of threads**?
+
+> Answer:
+
+**14d.** (1 mark) Fill in the two blanks so the following program prints each
+thread's ID and the total thread count:
+
+```c
+#include "omp.h"
+#include "stdio.h"
+
+int main() {
+#pragma omp parallel
+  printf("Hello from thread %d of %d\n",
+         ___________________,
+         ___________________);
+  return 0;
+}
+```
+
+> Blank 1 (thread ID):
+
+> Blank 2 (total threads):
+
+---
+
+## Question 15 — MPI Collective Operations (4 marks)
+
+**15a.** (2 marks) Match each collective MPI operation to its description by
+writing the corresponding letter in the blank:
+
+| Operation | Letter |
+|-----------|:------:|
+| `MPI_Bcast` | |
+| `MPI_Scatter` | |
+| `MPI_Gather` | |
+| `MPI_Reduce` | |
+
+**A.** All processes send a portion of data to one root process, which
+assembles the pieces.  
+**B.** One root process distributes different portions of an array to all
+processes.  
+**C.** One root process sends the **same** data to every other process.  
+**D.** Each process contributes data; a reduction (e.g., sum, max) is applied
+and the result is delivered to one root process.
+
+**15b.** (1 mark) Name the variant of `MPI_Reduce` that delivers the reduction
+result to **all** processes instead of just one root:
+
+> Answer:
+
+**15c.** (1 mark) What `mpiexec` flag specifies the **number of MPI processes**
+to launch?
+
+> Answer:
+
+---
+
+## Question 16 — SIMD Intrinsics: Code Analysis (4 marks)
+
+Consider the following function:
+
+```c
+#include <immintrin.h>
+
+void add4floats(float in1[4], float in2[4], float out[4])
+{
+  __m128 x   = _mm_loadu_ps(in1);
+  __m128 y   = _mm_loadu_ps(in2);
+  __m128 sum = _mm_add_ps(x, y);
+  _mm_storeu_ps(out, sum);
+}
+```
+
+**16a.** (1 mark) What is the width (in bits) of the `__m128` type?
+
+> Answer:
+
+**16b.** (2 marks) Complete the table describing what each intrinsic call does:
+
+| Call | What it does |
+|------|-------------|
+| `_mm_loadu_ps(in1)` | |
+| `_mm_add_ps(x, y)` | |
+| `_mm_storeu_ps(out, sum)` | |
+
+*(2 marks: 1 mark for any two correct; 2 marks for all three correct)*
+
+**16c.** (1 mark) The `_u` in `_mm_loadu_ps` / `_mm_storeu_ps` stands for
+**unaligned**. Which version — aligned (`_mm_load_ps`) or unaligned
+(`_mm_loadu_ps`) — is the safer choice when the array address may not be
+aligned to the register width?
+
+> Answer:
+
+---
+
+## Question 17 — CUDA: Memory Management (4 marks)
+
+**17a.** (1 mark) What is the key difference between `cudaMalloc` and
+`cudaMallocManaged`?
+
+> Answer:
+
+**17b.** (2 marks) The standard CUDA host/device workflow has six steps. Fill
+in the two blanks:
+
+1. Host allocates memory on device (`cudaMalloc`)
+2. Host copies data host → device (`cudaMemcpy … cudaMemcpyHostToDevice`)
+3. ____________________________________________
+4. Host waits for device to finish (`cudaDeviceSynchronize()`)
+5. ____________________________________________
+6. Host frees device memory (`cudaFree`)
+
+> Step 3:
+
+> Step 5:
+
+**17c.** (1 mark) What is the **maximum number of threads per block** on a
+typical NVIDIA GPU (as given in the course notes)?
+
+> Answer:
+
+---
+
+## Question 18 — SystemVerilog: Combinational Logic & Modules (3 marks)
+
+**18a.** (1 mark) In SystemVerilog, what is the functional difference between
+using `assign` (continuous assignment) and an `always @*` block for
+combinational logic?
+
+> Answer:
+
+**18b.** (1 mark) Rewrite just the `always` block of the module below so that
+`result` updates **combinationally** (on any input change) instead of only on
+the positive clock edge:
+
+```systemverilog
+  always @(posedge clk)
+  begin
+    result = a | b;
+  end
+```
+
+> Rewritten `always` block:
+
+**18c.** (1 mark) Which sensitivity list causes an `always` block to trigger on
+**any change** to any signal it reads? Tick one:
+
+- ☐ A) `always @(posedge clk)`
+- ☐ B) `always @(negedge clk)`
+- ☐ C) `always @*`
+- ☐ D) `always @(a or b)`
+
+---
+
+## Question 19 — FABRIC Testbed (2 marks)
+
+**19a.** (1 mark) What is FABRIC (in the context of this course), and what is
+its primary purpose?
+
+> Answer:
+
+**19b.** (1 mark) Match each FABRIC term to its definition by writing the
+corresponding letter in the blank:
+
+| Term | Letter |
+|------|:------:|
+| **slice** | |
+| **sliver** | |
+| **worker** | |
+
+**A.** A portion of a slice without dedicated resource access (e.g., a VM /
+node).  
+**B.** A single physical server within a FABRIC site.  
+**C.** The key unit of assignment; a set of resources distributed across FABRIC.
+
+---
+
+## Question 20 — Low-Level Programming: Intrinsics & RDTSC (4 marks)
+
+**20a.** (1 mark) What is a **compiler intrinsic**? How does it differ from
+writing inline assembly directly?
+
+> Answer:
+
+**20b.** (1 mark) What does the `__rdtsc()` intrinsic measure?
+
+> Answer:
+
+**20c.** (1 mark) Consider the RDTSC timing loop from the course notes:
+
+```c
+start = __rdtsc();
+for (int i = 0; i < COUNT; i++)
+    omp_get_wtime();
+end = __rdtsc();
+printf("Function took %lu cycles\n", ((end - start) / COUNT));
+```
+
+Tick the **one** correct statement:
+
+- ☐ A) `__rdtsc()` counts wall-clock seconds elapsed
+- ☐ B) `__rdtsc()` reads a hardware counter incremented each CPU clock cycle
+- ☐ C) `__rdtsc()` measures only time spent in kernel mode
+- ☐ D) `(end - start) / COUNT` gives the **total** cycles across all iterations
+
+**20d.** (1 mark) Which `#include` header provides the `__rdtsc()` intrinsic on
+x86?
+
+> Answer:
