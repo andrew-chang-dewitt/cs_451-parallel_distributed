@@ -1,5 +1,5 @@
 ---
-title: "Parallel & Distributed: Message-Passing Interface / MPI (reading)"
+title: "Parallel & Distributed: Message-Passing Interface (MPI)"
 description: "Reading notes on Chapter 8: Message-Passing Interface (MPI). Covers the SPMD paradigm, distributed memory, MPI's API (Init, Finalize, Send, Recv, collective ops), & worked examples building up from hello-world to send/receive pipelines."
 keywords:
   - "mpi"
@@ -15,13 +15,14 @@ keywords:
   - "illinois tech"
 meta:
   byline: Andrew Chang-DeWitt
-  published: "2026-05-04T00:00-06:00"
+  published: "2026-04-07T00:00-06:00"
+  updated: "2026-05-04T00:00-06:00"
 ---
 
 > [!NOTE]
 >
 > reading notes on chapter 8 of the course textbook by Nik Sultana (© 2026,
-> licensed CC BY-NC-SA 4.0). source material only; no outside references.
+> licensed CC BY-NC-SA 4.0). code samples largely unchanged from source material.
 
 ## agenda
 
@@ -61,6 +62,7 @@ paths.
 ## implementations
 
 two open-source implementations of the MPI standard:
+
 - **MPICH** — https://www.mpich.org/
 - **Open MPI** — the `mpiexec` we use in this course
 
@@ -121,6 +123,7 @@ example `MPI_Datatype` values: `MPI_CHAR`, `MPI_SHORT`, `MPI_INT`,
 `MPI_UNSIGNED`, `MPI_FLOAT`, etc.
 
 key notes on send/recv:
+
 - data transfer is **strictly typed**: receiver must expect the same type
   as sender
 - data can be "tagged" w/ a user-defined `int` label (use `0` for simple cases)
@@ -260,6 +263,7 @@ _**def: collective**_&mdash;a communication pattern involving more than two
 processes simultaneously.
 
 examples:
+
 - `MPI_Bcast` — one process broadcasts to all others
 - `MPI_Scatter` / `MPI_Gather` — distribute/collect data across all processes
 - `MPI_Reduce` — apply a reduction (sum, max, etc.) over data spread across
@@ -275,6 +279,7 @@ examples:
 >
 > the chapter suggests working through these exercises to solidify
 > understanding:
+>
 > - sending a value through a pipeline of processes
 > - having each process produce a random value, then finding the maximum
 > - implementing dining philosophers
